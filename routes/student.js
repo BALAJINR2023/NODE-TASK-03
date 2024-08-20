@@ -15,21 +15,21 @@ studentRouter.get('/', async (req, res) => {
         res.status(500).send({ error: 'An error occurred while fetching students' });
     }
 });
-// API to show all students for a particular mentor
-studentRouter.get('/students-for-mentor/:teacherId', async (req, res) => {
+// API to show all students for a particular teacher
+studentRouter.get('/students-for-teacher/:teacherId', async (req, res) => {
   const { teacherId } = req.params;
 
   try {
-      // Fetch students associated with the given mentor ID
+      // Fetch students associated with the given teacher ID
       const students = await collection.find({ teacherId: teacherId }).toArray();
 
       if (students.length === 0) {
-          return res.status(404).send({ msg: 'No students found for this mentor' });
+          return res.status(404).send({ msg: 'No students found for this teacher' });
       }
 
       res.send(students);
   } catch (error) {
-      console.error('Error fetching students for mentor:', error.message);
+      console.error('Error fetching students for teacher:', error.message);
       res.status(500).send({ error: 'An error occurred while fetching students' });
   }
 });
@@ -66,7 +66,7 @@ studentRouter.post("/", async (req, res) => {
       res.status(404).send({ msg: "Student Not Found" });
     }
   });
-// API to Assign or Change Mentor for particular Student: Select One Student and Assign one Mentor
+// API to Assign or Change teacher for particular Student: Select One Student and Assign one teacher
   studentRouter.patch("/assign-teacher/:studentId", async (req, res) => {
     const { body } = req;
     const { teacherId } = body;
@@ -92,39 +92,38 @@ studentRouter.post("/", async (req, res) => {
     }
   });
 
-  // API to show the previously assigned mentor for a particular student
-studentRouter.get('/previous-mentor/:studentId', async (req, res) => {
+  // API to show the previously assigned teacher for a particular student
+studentRouter.get('/previous-teacher/:studentId', async (req, res) => {
   const { studentId } = req.params;
 
   try {
-      const db = await connectDB();
       const studentsCollection = db.collection('students');
-      const mentorsCollection = db.collection('mentors');
-
+      const teachersCollection = db.collection('teachers');
+console.log(teachersCollection);
       // Fetch student details
-      const student = await studentsCollection.findOne({ _id: new MongoClient.ObjectId(studentId) });
+      const student = await studentsCollection.findOne({ id: studentId });
       
       if (!student) {
           return res.status(404).json({ error: 'Student not found' });
       }
 
-      let mentorName = 'No mentor assigned';
+      let teacherName = 'No teacher assigned';
 
-      if (student.mentorId) {
-          // Fetch mentor details
-          const mentor = await mentorsCollection.findOne({ _id: new MongoClient.ObjectId(student.mentorId) });
-          if (mentor) {
-              mentorName = mentor.name;
+      if (student.teacherId) {
+          // Fetch teacher details
+          const teacher = await teachersCollection.findOne({ id:student.teacherId });
+          if (teacher) {
+              teacherName = teacher.name;
           }
       }
 
       res.json({
           studentName: student.name,
-          previousMentor: mentorName
+          previousteacher: teacherName
       });
   } catch (error) {
-      console.error('Error fetching mentor for student:', error.message);
-      res.status(500).json({ error: 'An error occurred while fetching mentor' });
+      console.error('Error fetching teacher for student:', error.message);
+      res.status(500).json({ error: 'An error occurred while fetching teacher' });
   }
 });
 
