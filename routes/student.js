@@ -91,4 +91,41 @@ studentRouter.post("/", async (req, res) => {
       res.status(400).send({ msg: "Please check Student & Teacher Details" });
     }
   });
+
+  // API to show the previously assigned mentor for a particular student
+studentRouter.get('/previous-mentor/:studentId', async (req, res) => {
+  const { studentId } = req.params;
+
+  try {
+      const db = await connectDB();
+      const studentsCollection = db.collection('students');
+      const mentorsCollection = db.collection('mentors');
+
+      // Fetch student details
+      const student = await studentsCollection.findOne({ _id: new MongoClient.ObjectId(studentId) });
+      
+      if (!student) {
+          return res.status(404).json({ error: 'Student not found' });
+      }
+
+      let mentorName = 'No mentor assigned';
+
+      if (student.mentorId) {
+          // Fetch mentor details
+          const mentor = await mentorsCollection.findOne({ _id: new MongoClient.ObjectId(student.mentorId) });
+          if (mentor) {
+              mentorName = mentor.name;
+          }
+      }
+
+      res.json({
+          studentName: student.name,
+          previousMentor: mentorName
+      });
+  } catch (error) {
+      console.error('Error fetching mentor for student:', error.message);
+      res.status(500).json({ error: 'An error occurred while fetching mentor' });
+  }
+});
+
 export default studentRouter;
