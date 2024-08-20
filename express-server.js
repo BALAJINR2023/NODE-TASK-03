@@ -4,10 +4,10 @@ import teachersRouter from './routes/teacher.js';
 import studentRouter from './routes/student.js';
 import MongooseconnectDB from './db.utils/Mongoose.js';
 import connectDB from './db.utils/Mongo.js';
-
+import cors from 'cors';
 
 server.use(express.json());
-
+server.use(cors());
 await connectDB();
 await MongooseconnectDB();
 //Endpoint Routes
