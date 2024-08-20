@@ -99,10 +99,9 @@ studentRouter.get('/previous-teacher/:studentId', async (req, res) => {
   try {
       const studentsCollection = db.collection('students');
       const teachersCollection = db.collection('teachers');
-console.log(teachersCollection);
       // Fetch student details
       const student = await studentsCollection.findOne({ id: studentId });
-      
+      console.log('Fetched Student:', student);
       if (!student) {
           return res.status(404).json({ error: 'Student not found' });
       }
@@ -112,13 +111,14 @@ console.log(teachersCollection);
       if (student.teacherId) {
           // Fetch teacher details
           const teacher = await teachersCollection.findOne({ id:student.teacherId });
+          console.log('Fetched Teacher:', teacher);
           if (teacher) {
-              teacherName = teacher.name;
+              teacherName = teacher.Name;
           }
       }
 
       res.json({
-          studentName: student.name,
+          studentName: student.Name,
           previousteacher: teacherName
       });
   } catch (error) {
