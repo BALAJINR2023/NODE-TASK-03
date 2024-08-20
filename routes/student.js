@@ -15,6 +15,24 @@ studentRouter.get('/', async (req, res) => {
         res.status(500).send({ error: 'An error occurred while fetching students' });
     }
 });
+// API to show all students for a particular mentor
+studentRouter.get('/students-for-mentor/:teacherId', async (req, res) => {
+  const { teacherId } = req.params;
+
+  try {
+      // Fetch students associated with the given mentor ID
+      const students = await collection.find({ teacherId: teacherId }).toArray();
+
+      if (students.length === 0) {
+          return res.status(404).send({ msg: 'No students found for this mentor' });
+      }
+
+      res.send(students);
+  } catch (error) {
+      console.error('Error fetching students for mentor:', error.message);
+      res.status(500).send({ error: 'An error occurred while fetching students' });
+  }
+});
 //API to creat a student 
 studentRouter.post("/", async (req, res) => {
     const { body } = req;
